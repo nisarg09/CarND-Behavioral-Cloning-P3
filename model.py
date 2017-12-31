@@ -70,15 +70,18 @@ def distort_img(img,angle):
     dis_img = img.astype(float)
     val = np.random.randint(-28,28)
     if val > 0:
-        mask = (dis_img[:,:,0]+val)>255
-    if val< 0:
-        mask = (dis_img[:,:,0]+val)<0
+        mask = (dis_img[:,:,0]+val) > 255
+    if val < 0:
+        mask = (dis_img[:,:,0]+val) < 0
     dis_img[:,:,0] += np.where(mask,0,val)
     hei,wid = dis_img.shape[0:2]
     mid = np.random.randint(0,wid)
     factor = np.random.uniform(0.6,0.8)
     if np.random.rand() > .5:
-        dis_img[:,0:mid,0] += np.where(mask,0,val)
+        dis_img[:,0:mid,0] *= factor
+    else:
+        dis_img[:,mid:wid,0] *= factor
+
 
     hei,wid,_ = dis_img.shape
     horizon = 2*hei/5
