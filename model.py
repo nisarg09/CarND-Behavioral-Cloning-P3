@@ -34,7 +34,7 @@ def process_dispimage(image, angle, pred_angle, frame):
 
     cv2.line(img,(int(w/2),int(h)),(int(w/2+angle*w/4),int(h/2)),(0,255,0), thickness=4)
     if pred_angle is not None:
-        cv2.line(img,(int(w/2),int(h)),(int(w/2+angle*w/4),int(h/2)),(0,0,255,thickness=4))
+        cv2.line(img,(int(w/2),int(h)),(int(w/2+angle*w/4),int(h/2)),(0,0,255),thickness=4)
     return img
 
 def visualize_dataset(X,y,y_pred=None):
@@ -256,7 +256,7 @@ if not just_checkin_data:
     model.add(Dense(1))
 
     #Compile and train
-    model.compile(optimizer=Adma(1r=1e-4),loss='mse')
+    model.compile(optimizer=Adma(lr=1e-4),loss='mse')
 
     #initialize generators
     train_gen = generate_training_data(imges_train,angles_train,validation_falg=False,batch_size=64)
