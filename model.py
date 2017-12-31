@@ -26,7 +26,7 @@ def process_dispimage(image, angle, pred_angle, frame):
     Data visualization for image data
     """
     font = cv2.FONT_HERSHEY_SIMPLEX
-    img = cv2.cvtColor(img, cv2.COLOR_YUV2BGR)
+    img = cv2.cvtColor(image, cv2.COLOR_YUV2BGR)
     img = cv2.resize(img,None,fx=3, fy=3, interpolation=cv2.INTER_CUBIC)
     h,w = img.shape[0:2]
 
@@ -38,6 +38,14 @@ def process_dispimage(image, angle, pred_angle, frame):
         cv2.line(img,(int(w/2),int(h)),(int(w/2+angle*w/4),int(h/2)),(0,0,255),thickness=4)
     return img
 
+def dispimg(img):
+    """
+    Display image
+    """
+    cv2.imshow("image",img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
 def visualize_dataset(X,y,y_pred=None):
     """
     Format the data from the dataset and display
@@ -46,10 +54,8 @@ def visualize_dataset(X,y,y_pred=None):
         if y_pred is not None:
             img = process_dispimage(X[i],y[i],y_pred[i],i)
         else:
-            img = process_dispimage(X[i],y[i],y_pred[i],i)
-        cv2.imshow("image",img)
-        cv2.waitkey(0)
-        cv2.destryoAllWindows()
+            img = process_dispimage(X[i],y[i],None,i)
+        #dispimg(img)
 
 def preprocess_image(img):
     """
@@ -71,7 +77,7 @@ def distort_img(img,angle):
     val = np.random.randint(-28,28)
     if val > 0:
         mask = (dis_img[:,:,0]+val) > 255
-    if val < 0:
+    if val <= 0:
         mask = (dis_img[:,:,0]+val) < 0
     dis_img[:,:,0] += np.where(mask,0,val)
     hei,wid = dis_img.shape[0:2]
@@ -93,7 +99,7 @@ def distort_img(img,angle):
     return (dis_img.astype(np.uint8),angle)
 
 
-def generate_training_data(images,angles,batct_size=128,validation_flag=False):
+def generate_training_data(images,angles,batch_size=128,validation_flag=False):
     """
     Method for model training data generator to load,process and distort images, yield them to model
     """
@@ -230,18 +236,18 @@ if not just_checkin_data:
     #Adding three 5x5 Convolution layers
     #Output Depth 24,36,48
     #Stride 2x2
-    model.add(Convolution2D(24,5,5,subsample=(2,2), border_mode='valid', W_regularizer=12(0.001)))
+    model.add(Convolution2D(24,5,5,subsample=(2,2), border_mode='valid', W_regularizer=l2(0.001)))
     model.add(ELU())
-    model.add(Convolution2D(36,5,5,subsample=(2,2), border_mode='valid', W_regularizer=12(0.001)))
+    model.add(Convolution2D(36,5,5,subsample=(2,2), border_mode='valid', W_regularizer=l2(0.001)))
     model.add(ELU())
-    model.add(Convolution2D(48,5,5,subsample=(2,2), border_mode='valid', W_regularizer=12(0.001)))
+    model.add(Convolution2D(48,5,5,subsample=(2,2), border_mode='valid', W_regularizer=l2(0.001)))
     model.add(ELU())
 
     #Adding two 3x3 layers
     #Output depth 64 & 64
-    model.add(Convolution2D(64,3,3, border_mode='valid', W_regularizer=12(0.001)))
+    model.add(Convolution2D(64,3,3, border_mode='valid', W_regularizer=l2(0.001)))
     model.add(ELU())
-    model.add(Convolution2D(64,3,3, border_mode='valid', W_regularizer=12(0.001)))
+    model.add(Convolution2D(64,3,3, border_mode='valid', W_regularizer=l2(0.001)))
     model.add(ELU())
 
     #Adding flatten Layer
@@ -250,26 +256,26 @@ if not just_checkin_data:
     #Adding three fully connected layers
     #Output depth 100,50,10
     #Activation: tanh
-    model.add(Debse(100, W_regularizer=12(0.001)))
-    mode.add(ELU())
-    model.add(Debse(50, W_regularizer=12(0.001)))
-    mode.add(ELU())
-    model.add(Debse(10, W_regularizer=12(0.001)))
-    mode.add(ELU())
+    model.add(Dense(100, W_regularizer=l2(0.001)))
+    model.add(ELU())
+    model.add(Dense(50, W_regularizer=l2(0.001)))
+    model.add(ELU())
+    model.add(Dense(10, W_regularizer=l2(0.001)))
+    model.add(ELU())
 
     #Adding fully connected output layer
     model.add(Dense(1))
 
     #Compile and train
-    model.compile(optimizer=Adma(lr=1e-4),loss='mse')
+    model.compile(optimizer=Adam(lr=1e-4),loss='mse')
 
     #initialize generators
-    train_gen = generate_training_data(imges_train,angles_train,validation_falg=False,batch_size=64)
+    train_gen = generate_training_data(images_train,angles_train,validation_flag=False,batch_size=64)
 
-    valid_gen = generate_training_data(imges_train,angles_train,validation_falg=True,batch_size=64)
+    valid_gen = generate_training_data(images_train,angles_train,validation_flag=True,batch_size=64)
 
 
-    tes_gen = generate_training_data(imges_test,angles_test,validation_falg=False,batch_size=64)
+    tes_gen = generate_training_data(images_test,angles_test,validation_flag=False,batch_size=64)
 
     checkpoint = ModelCheckpoint('model{epoch:02d}.h5')
 
@@ -278,12 +284,12 @@ if not just_checkin_data:
     print(model.summary())
 
     n=12
-    X_test,y_test = generate_visualtraining(images_test[:,n], angles_test[:n], batch_size=n,validation_flag=True)
-    y_pred = model.predict(X_test,y_test,y_pred)
+    X_test,y_test = generate_visualtraining(images_test[:n], angles_test[:n], batch_size=n,validation_flag=True)
+    y_pred = model.predict(X_test,n,verbose=2)
     visualize_dataset(X_test, y_test, y_pred)
 
     #Save model data
     model.save_weights('./model.h5')
-    json_string - model.to_json()
+    json_string = model.to_json()
     with open('./model.json','w')  as f:
         f.write(json_string)
