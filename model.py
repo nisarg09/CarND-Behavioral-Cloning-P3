@@ -13,9 +13,10 @@ import numpy as np
 from PIL import Image
 import cv2
 import matplotlib.pyplot as plt
+plt.switch_backend('agg')
 import os
 import csv
-import tesnsorflow as tf
+import tensorflow as tf
 tf.python.control_flow_ops = tf
 
 
@@ -54,10 +55,10 @@ def preprocess_image(img):
     """
     Function to preprocess images before applying it to the NN
     """
-    crop_img = img[50:150,:,:]
+    crop_img = img[50:140,:,:]
     blur_img = cv2.GaussianBlur(crop_img, (3,3),0)
     resize_img = cv2.resize(blur_img,(200,66), interpolation=cv2.INTER_AREA)
-    yuv_img = cv2.cvtColor(resize_img, cv2.COLOR_BGRYUV)
+    yuv_img = cv2.cvtColor(resize_img, cv2.COLOR_BGR2YUV)
     return yuv_img
 
 
@@ -72,20 +73,20 @@ def distort_img(img,angle):
         mask = (dis_img[:,:,0]+val)>255
     if val< 0:
         mask = (dis_img[:,:,0]+val)<0
-    dis_img[:,:,0] += np.where(mask,0,value)
+    dis_img[:,:,0] += np.where(mask,0,val)
     hei,wid = dis_img.shape[0:2]
-    mid = np.random.randint(0,w)
+    mid = np.random.randint(0,wid)
     factor = np.random.uniform(0.6,0.8)
     if np.random.rand() > .5:
         dis_img[:,0:mid,0] += np.where(mask,0,val)
 
-    hei,wid = dis_img.shape
-    horizon = 2*h/5
-    v_shift = np.random.randint(-h/8,h/8)
+    hei,wid,_ = dis_img.shape
+    horizon = 2*hei/5
+    v_shift = np.random.randint(-hei/8,hei/8)
     pts1 = np.float32([[0,horizon],[wid,horizon],[0,hei],[wid,hei]])
-    pts2 = np.float32([[0,hrozion+v_shift],[wid,horizon+v_shift],[0,hei],[wid,hei]])
+    pts2 = np.float32([[0,horizon+v_shift],[wid,horizon+v_shift],[0,hei],[wid,hei]])
     M = cv2.getPerspectiveTransform(pts1,pts2)
-    dis_img = cv2.warpPerspective(new_img,M,(wid,hei),borderMode=cv2.BORDER_REPLICATE)
+    dis_img = cv2.warpPerspective(dis_img,M,(wid,hei),borderMode=cv2.BORDER_REPLICATE)
     return (dis_img.astype(np.uint8),angle)
 
 
@@ -125,9 +126,11 @@ def generate_visualtraining(images,angles,batch_size=20,validation_flag=False):
     """
     Method for loading, procesisng ad distorting images
     """
-    imges,angles = shuffle(images,angles)
+    X = []
+    y = []
+    image_path,angles = shuffle(images,angles)
     for i in range(batch_size):
-        img = cv2.imread(images)
+        img = cv2.imread(image_path[i])
         angle = angles[i]
         img = preprocess_image(img)
         if not validation_flag:
@@ -139,14 +142,14 @@ def generate_visualtraining(images,angles,batch_size=20,validation_flag=False):
 #
 #MAIN CODE STARTS HERE
 #
-source_path = os.getcwd() + "../data/IMG"
-csv_path = os.getcwd() + "../data/driving_data_log.csv"
+source_path = '/home/carnd/CarND-Behavioral-Cloning-P3/data/'
+csv_path = '/home/carnd/CarND-Behavioral-Cloning-P3/data/driving_log.csv'
 
 images = []
 angles = []
 
-with open(csv_path,'rt') as csv:
-    driving_data = list(csv.reader(csv, skipinitialspace=True, delimiter=',', quoting=csv.QUOTE_NONE))
+with open(csv_path,'rt') as csvfile:
+    driving_data = list(csv.reader(csvfile, skipinitialspace=True, delimiter=',', quoting=csv.QUOTE_NONE))
 
 for row in driving_data[1:]:
     if float(row[6])<0.1:
@@ -156,7 +159,7 @@ for row in driving_data[1:]:
     angles.append(float(row[3]))
     #Left image and angle
     images.append(source_path + row[1])
-    angles.append(float(row[3] + 0.25))
+    angles.append(float(row[3]) + 0.25)
     #Right image and angle
     images.append(source_path + row[2])
     angles.append(float(row[3]))
@@ -169,15 +172,15 @@ print('Before:', images.shape, angles.shape)
 num_bins = 23
 avg_samples = len(angles)/num_bins
 hist,bins = np.histogram(angles, num_bins)
-widht = 0.7 * (bins[1] - bins[0])
-center = (bins[:1] + bins[1:])/2
-plt.bar(center, hist, align='center', width=width)
-plt.plot((np.min(angles), np.max(angles)), (avg_samples_per_bin, avg_samples_per_bin), 'k-')
+width = 0.7 * (bins[1] - bins[0])
+center = (bins[:-1] + bins[1:])/2
+plt.bar(center, hist, align='center',width=width)	
+plt.plot((np.min(angles), np.max(angles)), (avg_samples, avg_samples), 'k-')
 plt.show()
 
 #Keep-prob for each bin
 keep_probs = []
-target = avg_samples_per_bin * .5
+target = avg_samples * .5
 for i in range(num_bins):
     if hist[i] < target:
         keep_probs.append(1.)
@@ -192,17 +195,16 @@ for i in range(len(angles)):
                 remove_list.append(i)
 images = np.delete(images, remove_list, axis=0)
 angles = np.delete(angles, remove_list)
-
 # print histogram again to show more even distribution of steering angles
 hist, bins = np.histogram(angles, num_bins)
 plt.bar(center, hist, align='center', width=width)
-plt.plot((np.min(angles), np.max(angles)), (avg_samples_per_bin, avg_samples_per_bin), 'k-')
+plt.plot((np.min(angles), np.max(angles)), (avg_samples, avg_samples), 'k-')
 #plt.show()
 
 print('After:', images.shape, angles.shape)
 
 # visualize a single batch of the data
-X,y = generate_training_data_for_visualization(images, angles)
+X,y = generate_visualtraining(images, angles)
 visualize_dataset(X,y)
 
 # split into train/test sets
