@@ -17,8 +17,8 @@ def load_data(args):
     """
     dataframe = pd.read_csv(os.path.join(args.data_dir, 'driving_log.csv'))
 
-    X = dataframe[0,1,2].values
-    y = dataframe[4].values
+    X = dataframe[['center', 'left', 'right']].values
+    y = dataframe['steering'].values
 
     X_train,X_valid,y_train,y_valid = train_test_split(X,y, test_size=args.test_size, random_state=0)
 
