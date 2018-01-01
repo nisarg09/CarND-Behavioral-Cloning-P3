@@ -110,7 +110,7 @@ In the end, the model looks like as follows:
 
 To capture good driving behavior, I first recorded two laps on track one using center lane driving. Here is an example image of center lane driving:
 
-![ScreenShot][https://github.com/nisarg09/CarND-Behavioral-Cloning-P3/blob/master/images/center.png]
+![ScreenShot](https://github.com/nisarg09/CarND-Behavioral-Cloning-P3/blob/master/images/center.png)
 
 I then recorded the vehicle recovering from the left side and right sides of the road back to center so that the vehicle would learn to recover in case it drifts off the road. These images show what a recovery looks like:
 
