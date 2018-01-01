@@ -110,20 +110,17 @@ In the end, the model looks like as follows:
 
 To capture good driving behavior, I first recorded two laps on track one using center lane driving. Here is an example image of center lane driving:
 
-![alt text][images/center.png]
+![alt text][CarND-Behavioral-Cloning-P3/images/center.png]
 
 I then recorded the vehicle recovering from the left side and right sides of the road back to center so that the vehicle would learn to recover in case it drifts off the road. These images show what a recovery looks like:
 
-![alt text][image3]
-![alt text][image4]
-![alt text][image5]
+![alt text][CarND-Behavioral-Cloning-P3/images/left.png]
+![alt text][CarND-Behavioral-Cloning-P3/images/right.png]
 
 To augment the data sat, I also flipped images and angles thinking that this would provide better learning for the model in different whether and road conditions. For example, here is an image that has then been flipped:
 
-![alt text][image6]
-![alt text][image7]
-
-Etc ....
+![alt text][CarND-Behavioral-Cloning-P3/images/flip.png]
+![alt text][CarND-Behavioral-Cloning-P3/images/trans.png]
 
 After the collection process, I had around 27k number of data points. I then preprocessed this data by
 
