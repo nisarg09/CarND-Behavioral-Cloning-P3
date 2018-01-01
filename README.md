@@ -114,13 +114,13 @@ To capture good driving behavior, I first recorded two laps on track one using c
 
 I then recorded the vehicle recovering from the left side and right sides of the road back to center so that the vehicle would learn to recover in case it drifts off the road. These images show what a recovery looks like:
 
-![alt text][CarND-Behavioral-Cloning-P3/images/left.png]
-![alt text][CarND-Behavioral-Cloning-P3/images/right.png]
+![ScreenShot](https://github.com/nisarg09/CarND-Behavioral-Cloning-P3/blob/master/images/left.png)
+![ScreenShot](https://github.com/nisarg09/CarND-Behavioral-Cloning-P3/blob/master/images/right.png)
 
 To augment the data sat, I also flipped images and angles thinking that this would provide better learning for the model in different whether and road conditions. For example, here is an image that has then been flipped:
 
-![alt text][CarND-Behavioral-Cloning-P3/images/flip.png]
-![alt text][CarND-Behavioral-Cloning-P3/images/trans.png]
+![ScreenShot](https://github.com/nisarg09/CarND-Behavioral-Cloning-P3/blob/master/images/flip.png)
+![ScreenShot](https://github.com/nisarg09/CarND-Behavioral-Cloning-P3/blob/master/images/trans.png)
 
 After the collection process, I had around 27k number of data points. I then preprocessed this data by
 
