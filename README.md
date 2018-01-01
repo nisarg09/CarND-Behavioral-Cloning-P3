@@ -145,6 +145,6 @@ I finally randomly shuffled the data set and put 20% of the data into a validati
 I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was 10 as evidenced by NVIDIA model. I used an adam optimizer so that manually training the learning rate wasn't necessary.
 
 Here is the Video of the Lake Track.
-[![](https://www.youtube.com/v=8lgdKmdwPJk/0.jpg)](https://youtu.be/8lgdKmdwPJk)
+[![video](https://www.youtube.com/v=VID/8lgdKmdwPJk/0.jpg)](https://youtu.be/8lgdKmdwPJk)
 
 
